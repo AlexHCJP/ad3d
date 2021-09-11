@@ -1,19 +1,31 @@
-import * as THREE from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import '../static/global.scss'
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import '../static/global.scss';
+// import '../assets/models/scene.gltf'
+// import '../assets/models/scene.bin'
 
-function main() {
-    const scene = new THREE.Scene();
+let renderer, scene, camera, controls
+
+function init() {
+    renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.shadowMap.enabled = true;
+    document.body.appendChild( renderer.domElement );
+    
+
+
+
+    scene = new THREE.Scene();
     scene.background = new THREE.Color('gray');
     
-    const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-    camera.position.z = 4;
-    camera.position.x = 4;
+    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    camera.position.z = 5;
+    camera.position.x = 5;
     camera.position.y = 2;
     camera.lookAt(0, 0, 0);
 
-    // const light = new THREE.AmbientLight(0xffffff, 0.7);
-    // scene.add(light);
+    controls = new OrbitControls( camera, renderer.domElement );
 
     var pointLight = new THREE.PointLight('white');
     pointLight.position.set( 15, 10, 10 );
@@ -25,55 +37,32 @@ function main() {
     pointLight.castShadow = true;
     scene.add(pointLight);
 
-
     {
-        const mesh = new THREE.Mesh( 
-            new THREE.BoxGeometry( 7, 0.1 , 7 ),
-            new THREE.MeshStandardMaterial({ color: 0xffffff }));
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-            scene.add( mesh );
-    }
-    {
-        const mesh = new THREE.Mesh( 
-            new THREE.BoxGeometry( 7, 0.1 , 7 ),
-            new THREE.MeshStandardMaterial({ color: 0xf5f }));
-        mesh.position.y = 3.5
-        mesh.position.x = -3.5
-        mesh.rotation.z = Math.PI / 2
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        scene.add( mesh );
-    }
-    {
-        const mesh = new THREE.Mesh( 
-            new THREE.BoxGeometry( 2, 2 , 2 ),
-            new THREE.MeshStandardMaterial({ color: 0xf5f }));
-        mesh.position.y = 2
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        scene.add( mesh );
-    }
-    // {
-    //     const loader = new GLTFLoader();
+        const loader = new GLTFLoader();
 
-    //     loader.load( './src/scene.gltf', function ( gltf ) {
+        loader.load( 'assets/models/scene.gltf', function ( glft ) {
+            glft.scene.position.set(0, -10, 0)
+            scene.add( glft.scene);
 
-    //         scene.add( gltf.scene );
+            controls.update();
+            renderer.render(scene, camera)
+        }, function ( xhr ) {
 
-    //     }, undefined, function ( error ) {
-
-    //         console.error( error );
-
-    //     } );
-    // }
-
-    const renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    renderer.shadowMap.enabled = true;
-    document.body.appendChild( renderer.domElement );
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
     
+        }, function ( error ) {
+
+            console.error( error );
+
+        } );
+    }
+
     renderer.render(scene, camera)
 }
-
-main();
+function animate() {
+    controls.update();
+    requestAnimationFrame ( animate );  
+    renderer.render (scene, camera);
+}
+init();
+animate();

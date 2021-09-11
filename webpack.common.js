@@ -34,8 +34,16 @@ module.exports = {
                 ]
             },
             {
-                test: /\.(glb|gltf)$/,
-                loader: 'file-loader'
+                test: /\.(bin|gltf|glb)$/,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options:
+                        {
+                            name: '[path][name].[ext]',
+                        }
+                    }
+                ]
             }
         ]
     }
